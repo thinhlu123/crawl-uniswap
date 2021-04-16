@@ -14,6 +14,8 @@ import (
 
 var ClientDB *mongo.Client
 var PairCollection *mongo.Collection
+var SwapCollection *mongo.Collection
+var BundleCollection *mongo.Collection
 
 func ConnectDB() (*mongo.Client, error) {
 	// Set client options
@@ -43,7 +45,8 @@ func ConnectDB() (*mongo.Client, error) {
 
 func setupCollection() {
 	PairCollection = ClientDB.Database("uniwap_db").Collection("pair")
-
+	SwapCollection = ClientDB.Database("uniwap_db").Collection("swap")
+	BundleCollection = ClientDB.Database("uniwap_db").Collection("bundle")
 }
 
 func setupIndexes() {
@@ -63,7 +66,7 @@ func setPairIndexes() {
 
 	// Declare an options object
 	opts := options.CreateIndexes().SetMaxTime(10 * time.Second)
-	_, err := PairCollection.Indexes().CreateMany(ctx, indexModels, opts)
+	_, err := SwapCollection.Indexes().CreateMany(ctx, indexModels, opts)
 
 	// Check for the options errors
 	if err != nil {
