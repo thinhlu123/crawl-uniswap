@@ -68,7 +68,6 @@ func CrawlUniswap() {
 			fmt.Println(err)
 			return
 		}
-		//swapDoc, err := model.ToBsonDoc(swap)
 		newObjs := make([]interface{}, 0, len(transaction))
 		for i := range transaction {
 			newObj, err := model.ToBsonDoc(transaction[i])

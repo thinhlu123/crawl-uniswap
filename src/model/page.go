@@ -1,8 +1,9 @@
 package model
 
 type PairInfo struct {
+	PairId         string
 	Name           string
-	TotalLiquidity int
+	TotalLiquidity float64
 }
 type PageVars struct {
 	Title string
@@ -10,8 +11,9 @@ type PageVars struct {
 	ListPairInfo []PairInfo
 
 	// for detail page
-	TotalLiquidity int
+	TotalLiquidity float64
+	Token0USD      float64
+	Token1USD      float64
 	Transaction    []TokenTransaction
-	ETHPrice       int
-	Pair
+	Pair           Pair
 }

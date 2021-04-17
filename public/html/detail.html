@@ -11,7 +11,29 @@
         <h1>{{.Title}}</h1>
 
         <p>Uniswap</p>
+        <p>1 {{.Pair.Token0.Symbol}} = {{.Pair.Token0Price}} {{.Pair.Token1.Symbol}} (${{.Token0USD}})</p>
+        <p>1 {{.Pair.Token1.Symbol}} = {{.Pair.Token1Price}} {{.Pair.Token0.Symbol}} (${{.Token1USD}})</p>
+        <br/>
+        <p>Total liquidity: {{.TotalLiquidity}}</p>
+        <table style="width:100%">
+            <tr>
+                <th>Type</th>
+                <th>Total Value</th>
+                <th>Token Amount</th>
+                <th>Token Amount</th>
+                <th>Account</th>
+            </tr>
+            {{range .Transaction}}
 
+            <tr>
+                <td>{{.Type}}</td>
+                <td>{{.AmountUSD}}</td>
+                <td>{{.Amount0}}</td>
+                <td>{{.Amount1}}</td>
+                <td>{{.To}}</td>
+            </tr>
+            {{end}}
+        </table>
 
     </div>
 </div>

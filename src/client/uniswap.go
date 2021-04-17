@@ -4,8 +4,6 @@ import (
 	"context"
 	"github.com/machinebox/graphql"
 	"github.com/mitchellh/mapstructure"
-	"sort"
-	"strconv"
 	"thinhlu123/crawl-uniswap/src/model"
 )
 
@@ -147,11 +145,11 @@ func GetTokenTransactionById(id string) ([]model.TokenTransaction, error) {
 	var result = append(swaps, burns...)
 	result = append(result, mints...)
 
-	sort.Slice(result, func(i, j int) bool {
-		a, _ := strconv.Atoi(result[i].Timestamp)
-		b, _ := strconv.Atoi(result[j].Timestamp)
-		return a > b
-	})
+	//sort.Slice(result, func(i, j int) bool {
+	//	a, _ := strconv.Atoi(result[i].Timestamp)
+	//	b, _ := strconv.Atoi(result[j].Timestamp)
+	//	return a > b
+	//})
 
 	return result, err
 }

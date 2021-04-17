@@ -19,7 +19,9 @@
                 <th>Liquidity</th>
             </tr>
             {{range .ListPairInfo}}
-            <tr onclick="window.location='/detail';">
+            {{with $id:=.PairId}}
+            <tr onclick="window.location='/detail?pairId={{$id}}';">
+                {{end}}
                 <td>{{.Name}}</td>
                 <td>{{.TotalLiquidity}}</td>
             </tr>

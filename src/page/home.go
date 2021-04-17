@@ -28,6 +28,7 @@ func Home(w http.ResponseWriter, req *http.Request) {
 	var listPairInfo []model.PairInfo
 	for _, e := range out {
 		var pairInfo model.PairInfo
+		pairInfo.PairId = e.PairId
 		pairInfo.Name = e.Token0.Symbol + " - " + e.Token1.Symbol
 		// TODO: cal total liquidity
 
