@@ -14,7 +14,7 @@ import (
 
 var ClientDB *mongo.Client
 var PairCollection *mongo.Collection
-var SwapCollection *mongo.Collection
+var TransactionCollection *mongo.Collection
 var BundleCollection *mongo.Collection
 
 func ConnectDB() (*mongo.Client, error) {
@@ -45,28 +45,55 @@ func ConnectDB() (*mongo.Client, error) {
 
 func setupCollection() {
 	PairCollection = ClientDB.Database("uniwap_db").Collection("pair")
-	SwapCollection = ClientDB.Database("uniwap_db").Collection("swap")
+	TransactionCollection = ClientDB.Database("uniwap_db").Collection("transaction")
 	BundleCollection = ClientDB.Database("uniwap_db").Collection("bundle")
 }
 
 func setupIndexes() {
-	setPairIndexes()
+	//setPairIndexes()
+	//setSwapIndexes()
 }
 
 func setPairIndexes() {
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 	indexModels := []mongo.IndexModel{
 		{
-			Keys: bsonx.Doc{{Key: "url", Value: bsonx.Int32(1)}},
+			Keys: bsonx.Doc{{Key: "pair_id", Value: bsonx.Int32(1)}},
 			Options: &options.IndexOptions{
 				Background: HelperPtrBool(true),
+				Unique:     HelperPtrBool(true),
 			},
 		},
 	}
 
 	// Declare an options object
 	opts := options.CreateIndexes().SetMaxTime(10 * time.Second)
-	_, err := SwapCollection.Indexes().CreateMany(ctx, indexModels, opts)
+	_, err := PairCollection.Indexes().CreateMany(ctx, indexModels, opts)
+
+	// Check for the options errors
+	if err != nil {
+		fmt.Println("Indexes().CreateMany() ERROR:", err)
+		os.Exit(1) // exit in case of error
+	} else {
+		fmt.Println("CreateMany() option:", opts)
+	}
+}
+
+func setSwapIndexes() {
+	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
+	indexModels := []mongo.IndexModel{
+		{
+			Keys: bsonx.Doc{{Key: "swap_id", Value: bsonx.Int32(1)}},
+			Options: &options.IndexOptions{
+				Background: HelperPtrBool(true),
+				Unique:     HelperPtrBool(true),
+			},
+		},
+	}
+
+	// Declare an options object
+	opts := options.CreateIndexes().SetMaxTime(10 * time.Second)
+	_, err := TransactionCollection.Indexes().CreateMany(ctx, indexModels, opts)
 
 	// Check for the options errors
 	if err != nil {

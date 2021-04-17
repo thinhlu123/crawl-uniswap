@@ -13,6 +13,18 @@
 
         <p>Uniswap</p>
 
+        <table style="width:100%">
+            <tr>
+                <th>Name</th>
+                <th>Liquidity</th>
+            </tr>
+            {{range .ListPairInfo}}
+            <tr onclick="window.location='/detail';">
+                <td>{{.Name}}</td>
+                <td>{{.TotalLiquidity}}</td>
+            </tr>
+            {{end}}
+        </table>
     </div>
 </div>
 </body>

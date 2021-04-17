@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/machinebox/graphql"
 	"github.com/mitchellh/mapstructure"
+	"sort"
+	"strconv"
 	"thinhlu123/crawl-uniswap/src/model"
 )
 
@@ -17,16 +19,6 @@ func InitUniSwapClient() {
 
 	UniswapClient = graphql.NewClient("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2")
 }
-
-/////// STEP
-// Choose 10 pair -> save to db
-// 1. Get ETH to USD
-// 2. Get Coin to ETH 0x956f47f50a910163d8bf957cf5846d573e7f87ca  0x1405c709d6bed996d046cd94d174af7ec0c39f43
-// 3. Compare coin use data in 1,2
-// 4. Get 5 transaction of each pair
-
-//// Get total totalLiquidity
-/// get totalLiquidity of 2 token in pair and convert to usd
 
 var RawPairQuery = `query ($id: String!){
 	pairs (where:{id: $id}) {
@@ -49,23 +41,44 @@ var RawPairQuery = `query ($id: String!){
 }`
 
 // RawSwapQuery Get transaction of Pair by id
-var RawSwapQuery = `query ($pairId: String!){
-  swaps(where: {pair:$pairId} ,first: 5 , orderBy: timestamp, orderDirection: desc) {
-    id
-    transaction{
-      	blockNumber
-    }
-    pair {
-      	id
-    }
-    sender
-    amount0In
-    amount1In
-    amount0Out
-    amount1Out
-    to
-    amountUSD
-  }
+var RawTokenTransactionQuery = `query($allPairs: String!) {
+ mints(first: 5, where: { pair: $allPairs }, orderBy: timestamp, orderDirection: desc) {
+   transaction {
+     id
+     timestamp
+   }
+   timestamp
+   to
+   liquidity
+   amount0
+   amount1
+   amountUSD
+ }
+ burns(first: 5, where: { pair: $allPairs }, orderBy: timestamp, orderDirection: desc) {
+   transaction {
+     id
+     timestamp
+   }
+   timestamp
+   to
+   liquidity
+   amount0
+   amount1
+   amountUSD
+ }
+ swaps(first: 5, where: { pair: $allPairs }, orderBy: timestamp, orderDirection: desc) {
+   transaction {
+     id
+     timestamp
+   }
+   timestamp
+   amount0In
+   amount0Out
+   amount1In
+   amount1Out
+   amountUSD
+   to
+ }
 }`
 
 // RawTokenQuery get price of coin to eth
@@ -77,7 +90,7 @@ var RawTokenQuery = `query ($id: String!){
 
 // GetETHPriceQuery use to convert eth to usd
 var GetETHPriceQuery = `{
-  bundle(id: 1) {
+  bundle(id: "1") {
     ethPrice 
   } 
 }`
@@ -99,10 +112,10 @@ func GetPairById(id string) ([]model.Pair, error) {
 	return result, err
 }
 
-func GetSwapById(id string) ([]model.Swap, error) {
-	graphqlRequest := graphql.NewRequest(RawSwapQuery)
+func GetTokenTransactionById(id string) ([]model.TokenTransaction, error) {
+	graphqlRequest := graphql.NewRequest(RawTokenTransactionQuery)
 	// set any variables
-	graphqlRequest.Var("pairId", id)
+	graphqlRequest.Var("allPairs", id)
 
 	var graphqlResponse map[string][]map[string]interface{}
 	err := UniswapClient.Run(context.Background(), graphqlRequest, &graphqlResponse)
@@ -110,8 +123,35 @@ func GetSwapById(id string) ([]model.Swap, error) {
 		return nil, err
 	}
 
-	var result []model.Swap
-	mapstructure.Decode(graphqlResponse["swaps"], &result)
+	var swaps []model.TokenTransaction
+	mapstructure.Decode(graphqlResponse["swaps"], &swaps)
+	for i := 0; i < len(swaps); i++ {
+		swaps[i].Type = "SWAP"
+		swaps[i].PairId = id
+	}
+
+	var burns []model.TokenTransaction
+	mapstructure.Decode(graphqlResponse["burns"], &burns)
+	for i := 0; i < len(burns); i++ {
+		burns[i].Type = "BURN"
+		burns[i].PairId = id
+	}
+
+	var mints []model.TokenTransaction
+	mapstructure.Decode(graphqlResponse["mints"], &mints)
+	for i := 0; i < len(mints); i++ {
+		mints[i].Type = "MINT"
+		mints[i].PairId = id
+	}
+
+	var result = append(swaps, burns...)
+	result = append(result, mints...)
+
+	sort.Slice(result, func(i, j int) bool {
+		a, _ := strconv.Atoi(result[i].Timestamp)
+		b, _ := strconv.Atoi(result[j].Timestamp)
+		return a > b
+	})
 
 	return result, err
 }
@@ -133,17 +173,17 @@ func GetTokenById(id string) ([]model.Token, error) {
 	return result, err
 }
 
-func GetPriceETH() ([]model.Bundle, error) {
-	graphqlRequest := graphql.NewRequest(RawTokenQuery)
+func GetPriceETH() (*model.Bundle, error) {
+	graphqlRequest := graphql.NewRequest(GetETHPriceQuery)
 
-	var graphqlResponse map[string][]map[string]interface{}
+	var graphqlResponse map[string]interface{}
 	err := UniswapClient.Run(context.Background(), graphqlRequest, &graphqlResponse)
 	if err != nil {
 		return nil, err
 	}
 
-	var result []model.Bundle
-	mapstructure.Decode(graphqlResponse["bundles"], &result)
+	var result model.Bundle
+	mapstructure.Decode(graphqlResponse["bundle"], &result)
 
-	return result, err
+	return &result, err
 }

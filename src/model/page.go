@@ -1,6 +1,17 @@
 package model
 
+type PairInfo struct {
+	Name           string
+	TotalLiquidity int
+}
 type PageVars struct {
 	Title string
-	Data  interface{}
+	// for home page
+	ListPairInfo []PairInfo
+
+	// for detail page
+	TotalLiquidity int
+	Transaction    []TokenTransaction
+	ETHPrice       int
+	Pair
 }
