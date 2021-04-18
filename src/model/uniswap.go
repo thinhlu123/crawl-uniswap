@@ -32,8 +32,10 @@ type (
 		//TxCount            string `bson:"tx_count,omitempty" mapstructure:"txCount,omitempty"`
 	}
 	TokenTransaction struct {
-		Type      string `bson:"type,omitempty"`
-		Timestamp string `bson:"timestamp,omitempty" mapstructure:"timestamp,omitempty"`
+		Name            string `bson:"name,omitempty"`
+		Type            string `bson:"type,omitempty"`
+		Timestamp       string `bson:"timestamp,omitempty" mapstructure:"timestamp,omitempty"`
+		TimeTransaction int64  `bson:"time_transaction,omitempty"`
 		//SwapId     string `bson:"swap_id,omitempty" mapstructure:"id,omitempty"`
 		//Pair       Pair   `bson:"pair,omitempty" mapstructure:"pair,omiempty"`
 		PairId     string `bson:"pair_id,omitempty"`
@@ -45,8 +47,9 @@ type (
 		To         string `bson:"to,omitempty" mapstructure:"to,omiempty"`
 		AmountUSD  string `bson:"amount_usd,omitempty" mapstructure:"amountUSD,omiempty"`
 		// for burn, mint
-		Amount0 string `bson:"amount_0,omitempty" mapstructure:"amount0,omiempty"`
-		Amount1 string `bson:"amount_1,omitempty" mapstructure:"amount1,omiempty"`
+		Amount0               string `bson:"amount_0,omitempty" mapstructure:"amount0,omiempty"`
+		Amount1               string `bson:"amount_1,omitempty" mapstructure:"amount1,omiempty"`
+		TransactionTimeString string
 	}
 	Bundle struct {
 		Type     string `bson:"type"`

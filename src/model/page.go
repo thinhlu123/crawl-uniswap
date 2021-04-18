@@ -11,9 +11,9 @@ type PageVars struct {
 	ListPairInfo []PairInfo
 
 	// for detail page
-	TotalLiquidity float64
-	Token0USD      float64
-	Token1USD      float64
+	TotalLiquidity string
+	Token0USD      string
+	Token1USD      string
 	Transaction    []TokenTransaction
 	Pair           Pair
 }

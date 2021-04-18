@@ -22,12 +22,14 @@ var RawPairQuery = `query ($id: String!){
 	pairs (where:{id: $id}) {
       	id
 		token0{
+			id
 			symbol
 			name
 			totalLiquidity
 			derivedETH
 		}
 		token1{
+			id
 			symbol
 			name
 			totalLiquidity
@@ -40,7 +42,7 @@ var RawPairQuery = `query ($id: String!){
 
 // RawSwapQuery Get transaction of Pair by id
 var RawTokenTransactionQuery = `query($allPairs: String!) {
- mints(first: 5, where: { pair: $allPairs }, orderBy: timestamp, orderDirection: desc) {
+ mints(first: 10, where: { pair: $allPairs }, orderBy: timestamp, orderDirection: desc) {
    transaction {
      id
      timestamp
@@ -52,7 +54,7 @@ var RawTokenTransactionQuery = `query($allPairs: String!) {
    amount1
    amountUSD
  }
- burns(first: 5, where: { pair: $allPairs }, orderBy: timestamp, orderDirection: desc) {
+ burns(first: 10, where: { pair: $allPairs }, orderBy: timestamp, orderDirection: desc) {
    transaction {
      id
      timestamp
@@ -64,7 +66,7 @@ var RawTokenTransactionQuery = `query($allPairs: String!) {
    amount1
    amountUSD
  }
- swaps(first: 5, where: { pair: $allPairs }, orderBy: timestamp, orderDirection: desc) {
+ swaps(first: 10, where: { pair: $allPairs }, orderBy: timestamp, orderDirection: desc) {
    transaction {
      id
      timestamp

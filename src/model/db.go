@@ -52,6 +52,7 @@ func setupCollection() {
 func setupIndexes() {
 	//setPairIndexes()
 	//setSwapIndexes()
+	setTransactionIndex()
 }
 
 func setPairIndexes() {
@@ -87,6 +88,32 @@ func setSwapIndexes() {
 			Options: &options.IndexOptions{
 				Background: HelperPtrBool(true),
 				Unique:     HelperPtrBool(true),
+			},
+		},
+	}
+
+	// Declare an options object
+	opts := options.CreateIndexes().SetMaxTime(10 * time.Second)
+	_, err := TransactionCollection.Indexes().CreateMany(ctx, indexModels, opts)
+
+	// Check for the options errors
+	if err != nil {
+		fmt.Println("Indexes().CreateMany() ERROR:", err)
+		os.Exit(1) // exit in case of error
+	} else {
+		fmt.Println("CreateMany() option:", opts)
+	}
+}
+
+func setTransactionIndex() {
+	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
+	expireTime := int32(70)
+	indexModels := []mongo.IndexModel{
+		{
+			Keys: bsonx.Doc{{Key: "created_time", Value: bsonx.Int32(1)}},
+			Options: &options.IndexOptions{
+				Background:         HelperPtrBool(true),
+				ExpireAfterSeconds: &expireTime,
 			},
 		},
 	}
